@@ -42,7 +42,8 @@
         }
       ],
       "expo-secure-store",
-      "@clerk/expo"
+      ["@clerk/expo", { "ios": { "addSignInWithAppleEntitlement": false } }],
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true,
