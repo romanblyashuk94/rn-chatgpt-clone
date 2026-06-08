@@ -1,11 +1,23 @@
 import HeaderDropdown from "@/components/HeaderDropdown";
+import MessageInput from "@/components/MessageInput";
 import { defaultStyles } from "@/constants/Styles";
+import { useAuth } from "@clerk/expo";
 import { Stack } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Button, Platform, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
-const NewChatPage = () => {
+interface NewChatPageProps {
+  onShouldSendMessage: (message: string) => void;
+}
+
+const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
+  const { signOut } = useAuth();
   const [gptVersion, setGptVersion] = useState<string>("3.5");
+
+  const getCompletion = async (message: string) => {
+    console.log(message);
+  };
 
   return (
     <View style={defaultStyles.pageContainer}>
@@ -26,6 +38,29 @@ const NewChatPage = () => {
           ),
         }}
       />
+
+      <View style={{ flex: 1 }}>
+        <Button
+          title="Log out"
+          onPress={() => {
+            signOut();
+          }}
+        />
+        {/* <ScrollView>
+          {Array.from({ length: 100 }).map((_, index) => (
+            <View key={index} style={{ height: 100 }}>
+              <Text>Message {index}</Text>
+            </View>
+          ))}
+        </ScrollView> */}
+      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ position: "absolute", bottom: 0, left: 0, width: "100%" }}
+        keyboardVerticalOffset={70}
+      >
+        <MessageInput onShouldSendMessage={getCompletion} />
+      </KeyboardAvoidingView>
     </View>
   );
 };
