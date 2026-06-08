@@ -31,7 +31,7 @@ function InitialLayout() {
   }, [fontLoaded, isAuthLoaded]);
 
   useEffect(() => {
-    if (!isAuthLoaded) return;
+    if (!isAuthLoaded || !fontLoaded) return;
 
     const inAuthGroup = segments[0] === "(auth)";
 
@@ -40,10 +40,9 @@ function InitialLayout() {
       router.replace("/(auth)/(drawer)/(chat)/new");
     } else if (!isSignedIn && inAuthGroup) {
       // Kick the user out
-
       router.replace("/");
     }
-  }, [isSignedIn, isAuthLoaded]);
+  }, [isSignedIn, isAuthLoaded, fontLoaded]);
 
   if (!isAuthLoaded || !fontLoaded) {
     return (
