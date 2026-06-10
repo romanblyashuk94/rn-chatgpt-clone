@@ -44,6 +44,8 @@
     "react-native-ios-context-menu": "^3.2.1",
     "react-native-ios-utilities": "^5.2.0",
     "react-native-keyboard-controller": "1.18.5",
+    "react-native-mmkv": "^4.3.1",
+    "react-native-nitro-modules": "^0.35.9",
     "react-native-reanimated": "~4.1.1",
     "react-native-redash": "^18.1.5",
     "react-native-safe-area-context": "~5.6.0",

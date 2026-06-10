@@ -2,17 +2,20 @@ import ChatMessage from "@/components/ChatMessage";
 import HeaderDropdown from "@/components/HeaderDropdown";
 import MessageIdeas from "@/components/MessageIdeas";
 import MessageInput from "@/components/MessageInput";
+import { STORAGE_KEYS } from "@/constants/StorageKeys";
 import { defaultStyles } from "@/constants/Styles";
 import { Message, Role } from "@/util/interfaces";
+import { storage } from "@/util/storage";
 import { useAuth } from "@clerk/expo";
 import { FlashList } from "@shopify/flash-list";
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { useState } from "react";
 import { Image, Platform, StyleSheet, View } from "react-native";
 import {
   KeyboardAvoidingView,
   useReanimatedKeyboardAnimation,
 } from "react-native-keyboard-controller";
+import { useMMKVString } from "react-native-mmkv";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 
 interface NewChatPageProps {
@@ -78,10 +81,12 @@ const DUMMY_MESSAGES: Message[] = [
 
 const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
   const { signOut } = useAuth();
-  const [gptVersion, setGptVersion] = useState<string>("3.5");
-  const [messages, setMessages] = useState<Message[]>([...DUMMY_MESSAGES]);
-  const [containerHeight, setContainerHeight] = useState(0);
 
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [key] = useMMKVString(STORAGE_KEYS.API_KEY, storage);
+  const [gptVersion, setGptVersion] = useMMKVString("gptVersion", storage);
+
+  const [containerHeight, setContainerHeight] = useState(0);
   const { height: keyboardHeight } = useReanimatedKeyboardAnimation();
 
   const getCompletion = async (message: string) => {
@@ -100,6 +105,10 @@ const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
     const marginTop = visibleHeight / 2 - 50;
     return { marginTop: Math.max(0, marginTop) };
   });
+
+  if (!key) {
+    return <Redirect href="/(auth)/(modal)/settings" />;
+  }
 
   return (
     <View style={defaultStyles.pageContainer}>

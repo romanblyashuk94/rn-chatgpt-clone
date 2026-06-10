@@ -1,3 +1,4 @@
+import Colors from "@/constants/Colors";
 import { ClerkProvider, useAuth } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { Ionicons } from "@expo/vector-icons";
@@ -60,17 +61,18 @@ function InitialLayout() {
         options={{
           presentation: "modal",
           title: "",
-          headerLeft: () => (
+          headerRight: () => (
             <TouchableOpacity
               style={{
                 justifyContent: "center",
                 alignItems: "center",
-                width: 35,
-                height: 35,
+                backgroundColor: Colors.selected,
+                padding: 4,
+                borderRadius: 20,
               }}
               onPress={() => router.back()}
             >
-              <Ionicons name="close-outline" size={28} />
+              <Ionicons name="close-outline" size={24} />
             </TouchableOpacity>
           ),
         }}
