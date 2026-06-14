@@ -22,20 +22,27 @@ const SettingsPage = () => {
     STORAGE_KEYS.API_KEY,
     storage,
   );
+  const [providerBaseUrlInStorage, setProviderBaseUrlInStorage] = useMMKVString(
+    STORAGE_KEYS.PROVIDER_BASE_URL,
+    storage,
+  );
 
-  const [apiKey, setApiKey] = useState(keyInStorage);
+  const [apiKey, setApiKey] = useState(keyInStorage || "");
+  const [providerBaseUrl, setProviderBaseUrl] = useState(
+    providerBaseUrlInStorage || "",
+  );
   const router = useRouter();
 
   const isSaveDisabled = !apiKey;
 
   const saveApiKey = async () => {
     setKeyInStorage(apiKey);
+    setProviderBaseUrlInStorage(providerBaseUrl);
     router.navigate("/(auth)/(drawer)/(chat)/new");
   };
 
   const removeApiKey = async () => {
     setKeyInStorage("");
-
     setApiKey("");
   };
 
@@ -43,22 +50,40 @@ const SettingsPage = () => {
     <View style={styles.container}>
       {keyInStorage ? (
         <>
-          <Text style={styles.label}>API Key has been set successfully</Text>
+          <Text style={styles.label}>API Key:</Text>
+          <Text numberOfLines={1} ellipsizeMode="clip" style={styles.text}>
+            {apiKey}
+          </Text>
+          <Text style={styles.label}>Provider Base URL:</Text>
+          <Text numberOfLines={1} ellipsizeMode="clip" style={styles.text}>
+            {providerBaseUrl || "https://openrouter.ai/api/v1/"}
+          </Text>
           <TouchableOpacity
             style={[defaultStyles.btn, { backgroundColor: Colors.primary }]}
             onPress={removeApiKey}
           >
-            <Text style={styles.buttonText}>Remove API Key</Text>
+            <Text style={styles.buttonText}>Remove API Key & Provider</Text>
           </TouchableOpacity>
         </>
       ) : (
         <>
-          <Text style={styles.label}>API Secret Key:</Text>
+          <Text style={styles.label}>API Key:</Text>
           <TextInput
             style={styles.input}
             value={apiKey}
             onChangeText={setApiKey}
             placeholder="Enter your API key"
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+
+          <Text style={styles.label}>Provider Base URL:</Text>
+
+          <TextInput
+            style={styles.input}
+            value={providerBaseUrl}
+            onChangeText={setProviderBaseUrl}
+            placeholder="https://openrouter.ai/api/v1/"
             autoCorrect={false}
             autoCapitalize="none"
           />
@@ -72,9 +97,9 @@ const SettingsPage = () => {
               },
             ]}
             onPress={saveApiKey}
-            disabled={!apiKey}
+            disabled={!apiKey || !providerBaseUrl}
           >
-            <Text style={styles.buttonText}>Save API Key</Text>
+            <Text style={styles.buttonText}>Save Settings</Text>
           </TouchableOpacity>
           <></>
         </>
@@ -94,6 +119,15 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     marginBottom: 10,
+  },
+  text: {
+    fontSize: 16,
+    marginTop: -5,
+    marginBottom: 20,
+    color: Colors.grey,
+    flexWrap: "wrap",
+    flexShrink: 1,
+    maxWidth: "100%",
   },
   input: {
     borderWidth: 1,

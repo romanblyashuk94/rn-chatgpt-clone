@@ -1,6 +1,7 @@
 import { Message, Role } from "@/util/interfaces";
 import { useUser } from "@clerk/expo";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
+import Markdown from "react-native-markdown-display";
 
 const ChatMessage = ({ role, content, imageUrl, prompt }: Message) => {
   const { user } = useUser();
@@ -23,7 +24,9 @@ const ChatMessage = ({ role, content, imageUrl, prompt }: Message) => {
         </>
       )}
 
-      <Text style={styles.text}>{content}</Text>
+      <View style={styles.content}>
+        <Markdown style={markdownStyles}>{content}</Markdown>
+      </View>
     </View>
   );
 };
@@ -53,10 +56,53 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
   },
-  text: {
-    padding: 4,
-    fontSize: 16,
-    flexWrap: "wrap",
+  content: {
     flex: 1,
+  },
+});
+
+const markdownStyles = StyleSheet.create({
+  body: {
+    fontSize: 16,
+  },
+  code_inline: {
+    backgroundColor: "#e0e0e0",
+    borderRadius: 4,
+    paddingHorizontal: 4,
+    fontSize: 14,
+    fontFamily: "Courier",
+  },
+  fence: {
+    backgroundColor: "#1e1e1e",
+    color: "#d4d4d4",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    fontFamily: "Courier",
+  },
+  blockquote: {
+    backgroundColor: "#f5f5f5",
+    borderLeftWidth: 4,
+    borderLeftColor: "#ccc",
+    paddingLeft: 12,
+    marginVertical: 8,
+  },
+  heading1: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginVertical: 8,
+  },
+  heading2: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginVertical: 6,
+  },
+  heading3: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginVertical: 4,
+  },
+  paragraph: {
+    marginVertical: 4,
   },
 });

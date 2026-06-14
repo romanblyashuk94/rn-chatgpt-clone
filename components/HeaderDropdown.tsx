@@ -1,41 +1,33 @@
 import Colors from "@/constants/Colors";
-import { SFSymbol } from "expo-symbols";
+import { Model } from "@/util/interfaces";
 import { StyleSheet, Text, View } from "react-native";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 export type HeaderDropdownProps = {
-  title: string;
-  selected?: string;
-  onSelect: (key: string) => void;
-  items: Array<{
-    key: string;
-    title: string;
-    icon: SFSymbol;
-  }>;
+  selected?: Model;
+  onSelect: (model: Model) => void;
+  items: Model[];
 };
 
-const HeaderDropdown = ({
-  title,
-  selected,
-  onSelect,
-  items,
-}: HeaderDropdownProps) => {
+const HeaderDropdown = ({ selected, onSelect, items }: HeaderDropdownProps) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.title}>
+            {selected ? `${selected.title}: ` : "Select Model"}
+          </Text>
 
           {selected && (
-            <Text style={styles.selectedTitle}>{selected} &gt;</Text>
+            <Text style={styles.selectedTitle}>{selected.subTitle} &gt;</Text>
           )}
         </View>
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content>
         {items.map((item) => (
-          <DropdownMenu.Item key={item.key} onSelect={() => onSelect(item.key)}>
-            <DropdownMenu.ItemTitle>{item.title}</DropdownMenu.ItemTitle>
+          <DropdownMenu.Item key={item.key} onSelect={() => onSelect(item)}>
+            <DropdownMenu.ItemTitle>{`${item.title}: ${item.subTitle}`}</DropdownMenu.ItemTitle>
             <DropdownMenu.ItemIcon ios={{ name: item.icon, pointSize: 20 }} />
           </DropdownMenu.Item>
         ))}

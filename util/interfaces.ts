@@ -14,3 +14,10 @@ interface Chat {
   id: number;
   title: string;
 }
+
+export interface Model {
+  title: string;
+  subTitle: string;
+  key: string;
+  icon: import("expo-symbols").SFSymbol;
+}
