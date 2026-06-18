@@ -5,27 +5,19 @@ import MessageInput from "@/components/MessageInput";
 import { MODELS } from "@/constants/Models";
 import { STORAGE_KEYS } from "@/constants/StorageKeys";
 import { defaultStyles } from "@/constants/Styles";
+import { useChatAutoscroll } from "@/hooks/useChatAutoscroll";
+import { useChatViewAnimatedHeight } from "@/hooks/useChatViewAnimatedHeight";
 import { Message, Model, Role } from "@/util/interfaces";
 import { storage } from "@/util/storage";
 import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { Redirect, Stack } from "expo-router";
 import { fetch as expoFetch } from "expo/fetch";
 import OpenAI from "openai";
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Image,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Platform,
-  StyleSheet,
-  View,
-} from "react-native";
-import {
-  KeyboardAvoidingView,
-  useReanimatedKeyboardAnimation,
-} from "react-native-keyboard-controller";
+import { useMemo, useRef, useState } from "react";
+import { Image, Platform, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useMMKVObject, useMMKVString } from "react-native-mmkv";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 
 interface NewChatPageProps {
   onShouldSendMessage: (message: string) => void;
@@ -44,27 +36,12 @@ const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
     storage,
   );
 
-  const isAutoScrollEnabled = useRef(true);
-  const SCROLL_BOTTOM_THRESHOLD = 50;
+  const { isAutoScrollEnabled, handleScroll, handleScrollBeginDrag } =
+    useChatAutoscroll({ scrollBottomThreshold: 50, messagesListRef, messages });
 
-  useEffect(() => {
-    if (messages.length === 0 || !isAutoScrollEnabled.current) return;
-    messagesListRef.current?.scrollToEnd({ animated: true });
-  }, [messages]);
-
-  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
-    const distanceFromBottom =
-      contentSize.height - layoutMeasurement.height - contentOffset.y;
-    isAutoScrollEnabled.current = distanceFromBottom <= SCROLL_BOTTOM_THRESHOLD;
-  };
-
-  const handleScrollBeginDrag = () => {
-    isAutoScrollEnabled.current = false;
-  };
-
-  const [containerHeight, setContainerHeight] = useState(0);
-  const { height: keyboardHeight } = useReanimatedKeyboardAnimation();
+  const { logoAnimatedStyle, onLayout } = useChatViewAnimatedHeight({
+    logoHeight: 50,
+  });
 
   const openAI = useMemo(
     () =>
@@ -143,19 +120,6 @@ const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
       });
     }
   };
-
-  const onLayout = (event: any) => {
-    const { height } = event.nativeEvent.layout;
-    setContainerHeight(height);
-  };
-
-  // keyboardHeight goes from 0 → negative when keyboard opens,
-  // so (containerHeight + keyboardHeight) gives the visible area height.
-  const logoAnimatedStyle = useAnimatedStyle(() => {
-    const visibleHeight = containerHeight + keyboardHeight.value;
-    const marginTop = visibleHeight / 2 - 50;
-    return { marginTop: Math.max(0, marginTop) };
-  });
 
   if (!apiKey) {
     return <Redirect href="/(auth)/(modal)/settings" />;

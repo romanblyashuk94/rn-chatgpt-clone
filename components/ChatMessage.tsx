@@ -1,10 +1,18 @@
+import Colors from "@/constants/Colors";
 import { Message, Role } from "@/util/interfaces";
 import { useUser } from "@clerk/expo";
-import { Image, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
 import Markdown from "react-native-markdown-display";
 
-const ChatMessage = ({ role, content, imageUrl, prompt }: Message) => {
+const ChatMessage = ({
+  role,
+  content,
+  imageUrl,
+  prompt,
+  loading,
+}: Message & { loading?: boolean }) => {
   const { user } = useUser();
+  const isBotImage = role === Role.Bot && imageUrl;
 
   return (
     <View style={styles.row}>
@@ -16,16 +24,19 @@ const ChatMessage = ({ role, content, imageUrl, prompt }: Message) => {
           />
         </View>
       ) : (
-        <>
-          <Image
-            source={imageUrl ? { uri: imageUrl } : { uri: user?.imageUrl }}
-            style={styles.avatar}
-          />
-        </>
+        <Image source={{ uri: user?.imageUrl }} style={styles.avatar} />
       )}
 
       <View style={styles.content}>
-        <Markdown style={markdownStyles}>{content}</Markdown>
+        {loading ? (
+          <View style={styles.loading}>
+            <ActivityIndicator size="small" color={Colors.primary} />
+          </View>
+        ) : isBotImage ? (
+          <Image source={{ uri: imageUrl }} style={styles.generatedImage} />
+        ) : (
+          <Markdown style={markdownStyles}>{content}</Markdown>
+        )}
       </View>
     </View>
   );
@@ -58,6 +69,19 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  loading: {
+    justifyContent: "center",
+    height: 86,
+    borderWidth: 1,
+    borderColor: Colors.greyLight,
+    borderRadius: 12,
+  },
+  generatedImage: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 12,
+    marginBottom: 8,
   },
 });
 
