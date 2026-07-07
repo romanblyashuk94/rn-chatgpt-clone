@@ -1,8 +1,10 @@
 import Colors from "@/constants/Colors";
+import { copyImageToClipboard, saveToPhotos, shareImage } from "@/util/image";
 import { Message, Role } from "@/util/interfaces";
 import { useUser } from "@clerk/expo";
 import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
 import Markdown from "react-native-markdown-display";
+import * as ContextMenu from "zeego/context-menu";
 
 const ChatMessage = ({
   role,
@@ -13,6 +15,24 @@ const ChatMessage = ({
 }: Message & { loading?: boolean }) => {
   const { user } = useUser();
   const isBotImage = role === Role.Bot && imageUrl;
+
+  const contextItems = [
+    {
+      title: "Copy",
+      systemIcon: "doc.on.doc",
+      action: () => copyImageToClipboard(imageUrl!),
+    },
+    {
+      title: "Save to Photos",
+      systemIcon: "arrow.down.to.line",
+      action: () => saveToPhotos(imageUrl!),
+    },
+    {
+      title: "Share",
+      systemIcon: "square.and.arrow.up",
+      action: () => shareImage(imageUrl!),
+    },
+  ];
 
   return (
     <View style={styles.row}>
@@ -33,7 +53,21 @@ const ChatMessage = ({
             <ActivityIndicator size="small" color={Colors.primary} />
           </View>
         ) : isBotImage ? (
-          <Image source={{ uri: imageUrl }} style={styles.generatedImage} />
+          <ContextMenu.Root>
+            <ContextMenu.Trigger>
+              <Image source={{ uri: imageUrl }} style={styles.generatedImage} />
+            </ContextMenu.Trigger>
+            <ContextMenu.Content>
+              {contextItems.map((item) => (
+                <ContextMenu.Item key={item.title} onSelect={item.action}>
+                  <ContextMenu.ItemTitle>{item.title}</ContextMenu.ItemTitle>
+                  <ContextMenu.ItemIcon
+                    ios={{ name: item.systemIcon, pointSize: 18 }}
+                  />
+                </ContextMenu.Item>
+              ))}
+            </ContextMenu.Content>
+          </ContextMenu.Root>
         ) : (
           <Markdown style={markdownStyles}>{content}</Markdown>
         )}
@@ -81,7 +115,6 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 1,
     borderRadius: 12,
-    marginBottom: 8,
   },
 });
 
