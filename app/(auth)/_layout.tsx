@@ -41,7 +41,7 @@ const Layout = () => {
         }}
       />
       <Stack.Screen
-        name="(modal)/[url]"
+        name="(modal)/image/[url]"
         options={{
           headerTitle: "",
           presentation: "fullScreenModal",
