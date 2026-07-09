@@ -42,17 +42,28 @@ const ImageViewerPage = () => {
     bottomSheetModalRef.current?.dismiss();
   }, []);
 
-  const onCopyPrompt = () => {
-    Clipboard.setStringAsync(prompt!);
+  const onCopyPrompt = async () => {
+    try {
+      await Clipboard.setStringAsync(prompt!);
 
-    Toast.show("Prompt copied to clipboard", {
-      duration: Toast.durations.LONG,
-      position: Toast.positions.BOTTOM,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0,
-    });
+      Toast.show("Prompt copied to clipboard", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+    } catch {
+      Toast.show("Failed to copy prompt", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+    }
   };
 
   return (
