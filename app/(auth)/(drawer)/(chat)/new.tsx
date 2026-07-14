@@ -7,10 +7,12 @@ import { STORAGE_KEYS } from "@/constants/StorageKeys";
 import { defaultStyles } from "@/constants/Styles";
 import { useChatAutoscroll } from "@/hooks/useChatAutoscroll";
 import { useChatViewAnimatedHeight } from "@/hooks/useChatViewAnimatedHeight";
+import { addChat, addMessage } from "@/util/database";
 import { Message, Model, Role } from "@/util/interfaces";
 import { storage } from "@/util/storage";
 import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { Redirect, Stack } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { fetch as expoFetch } from "expo/fetch";
 import OpenAI from "openai";
 import { useMemo, useRef, useState } from "react";
@@ -25,6 +27,7 @@ interface NewChatPageProps {
 
 const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
   const messagesListRef = useRef<FlashListRef<Message>>(null);
+  const chatIdRef = useRef<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [apiKey] = useMMKVString(STORAGE_KEYS.API_KEY, storage);
   const [providerBaseUrl] = useMMKVString(
@@ -43,6 +46,8 @@ const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
     logoHeight: 50,
   });
 
+  const db = useSQLiteContext();
+
   const openAI = useMemo(
     () =>
       apiKey
@@ -59,7 +64,11 @@ const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
 
   const getCompletion = async (message: string) => {
     if (messages.length === 0) {
-      // create chat later, store to DB
+      const result = await addChat(db, message);
+      const chatId = result.lastInsertRowId;
+      chatIdRef.current = chatId;
+      addMessage(db, chatId, { role: Role.User, content: message });
+      console.log("Chat started. Saving messages to the DB", chatId);
     }
 
     isAutoScrollEnabled.current = true;
@@ -99,12 +108,14 @@ const NewChatPage = ({ onShouldSendMessage }: NewChatPageProps) => {
         });
       }
 
-      const completedMessages = [
-        ...conversation,
-        { role: Role.Bot, content: botResponse },
-      ];
+      if (chatIdRef.current) {
+        addMessage(db, chatIdRef.current!, {
+          role: Role.Bot,
+          content: botResponse,
+        });
+      }
 
-      console.log("Chat ended. Saving messages to the DB", completedMessages);
+      console.log("Chat ended. Saving messages to the DB", botResponse);
     } catch (error) {
       console.warn("[OpenAI] Completion failed:", error);
       setMessages((prev) => {
