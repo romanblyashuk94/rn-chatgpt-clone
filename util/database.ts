@@ -1,6 +1,6 @@
 import { Paths } from "expo-file-system";
 import { SQLiteDatabase } from "expo-sqlite";
-import { Message } from "./interfaces";
+import { Chat, Message } from "./interfaces";
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   console.log("Paths.document", Paths.document);
@@ -51,7 +51,7 @@ export const addChat = async (db: SQLiteDatabase, title: string) => {
 };
 
 export const getChats = async (db: SQLiteDatabase) => {
-  const result = await db.getAllAsync("SELECT * FROM chats");
+  const result = await db.getAllAsync<Chat>("SELECT * FROM chats");
   return result;
 };
 
