@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { RootSiblingParent } from "react-native-root-siblings";
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 SplashScreen.preventAutoHideAsync();
@@ -84,13 +85,15 @@ function InitialLayout() {
 
 const RootLayoutNav = () => {
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <KeyboardProvider>
-          <InitialLayout />
-        </KeyboardProvider>
-      </GestureHandlerRootView>
-    </ClerkProvider>
+    <RootSiblingParent>
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <KeyboardProvider>
+            <InitialLayout />
+          </KeyboardProvider>
+        </GestureHandlerRootView>
+      </ClerkProvider>
+    </RootSiblingParent>
   );
 };
 

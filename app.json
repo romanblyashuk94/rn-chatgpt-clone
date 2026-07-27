@@ -52,7 +52,14 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to use the camera."
         }
       ],
-      ["@clerk/expo", { "ios": { "addSignInWithAppleEntitlement": false } }],
+      [
+        "@clerk/expo",
+        {
+          "ios": {
+            "addSignInWithAppleEntitlement": false
+          }
+        }
+      ],
       "expo-build-properties",
       [
         "expo-file-system",
@@ -68,7 +75,8 @@
           "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
           "isAccessMediaLocationEnabled": true
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -2,7 +2,14 @@ import Colors from "@/constants/Colors";
 import { copyImageToClipboard, saveToPhotos, shareImage } from "@/util/image";
 import { Message, Role } from "@/util/interfaces";
 import { useUser } from "@clerk/expo";
-import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
+import { Link } from "expo-router";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import Markdown from "react-native-markdown-display";
 import * as ContextMenu from "zeego/context-menu";
 
@@ -55,7 +62,17 @@ const ChatMessage = ({
         ) : isBotImage ? (
           <ContextMenu.Root>
             <ContextMenu.Trigger>
-              <Image source={{ uri: imageUrl }} style={styles.generatedImage} />
+              <Link
+                href={`/(auth)/(modal)/image/${encodeURIComponent(imageUrl!)}?prompt=${encodeURIComponent(prompt!)}`}
+                asChild
+              >
+                <Pressable>
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.generatedImage}
+                  />
+                </Pressable>
+              </Link>
             </ContextMenu.Trigger>
             <ContextMenu.Content>
               {contextItems.map((item) => (
